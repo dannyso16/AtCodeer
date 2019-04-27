@@ -18,10 +18,10 @@ def f(x:int)->bool:
             weight += wi
     return track_cnt <= K
 
-def binary_search(f, s:int, t:int)->int:
+def binary_search1(f, s:int, t:int)->int:
     """f: function(x:int)->bool
     f(s): NG(False), f(t)=OK(True)，f は広義単調増加
-    return : [s, t) での f(x)=True なる最小のx
+    return : [s, t) での f(x)=True なる'最小'のx
     """
     ng = s-1
     ok = t
@@ -35,9 +35,26 @@ def binary_search(f, s:int, t:int)->int:
         raise(ValueError("For all x, f(x)=False"))
     return ok
 
+def binary_search2(f, s:int, t:int)->int:
+    """f: function(x:int)->bool
+    f(t): NG(False), f(s)=OK(True)，f は広義単調増加
+    return : [s, t) での f(x)=True なる'最大'のx
+    """
+    ng = t
+    ok = s-1
+    while ng - ok > 1:
+        mid = (ok + ng)//2
+        if f(mid): ok = mid
+        else:      ng = mid
+        # print(ng, ok, ok-ng)
+
+    if ok==t:
+        raise(ValueError("For all x, f(x)=False"))
+    return ok
+
 if __name__ == "__main__":
     N,K = map(int, input().split())
     ws = [int(input()) for _ in range(N)]
     MAX_P = 10**10
     MIN_P = 0
-    print(binary_search(f, MIN_P, MAX_P))
+    print(binary_search1(f, MIN_P, MAX_P))
