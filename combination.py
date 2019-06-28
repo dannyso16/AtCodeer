@@ -8,7 +8,8 @@ MOD = 10**9 + 7
 def comb_fermat(n:int, r:int)->int:
     # Fermat's little theorem: O(r)
     # return nCr (mod MOD)
-    if r > n-r: return comb(n, n-r)
+    if r > n: return 0
+    if r > n-r: return comb_fermat(n, n-r)
     mul,div = 1,1
     for i in range(r):
         mul *= n-i

@@ -5,7 +5,7 @@ s = list(map(int, input().split()))
 right = 0
 for left in range(N):
     while (right < N) and (right をひとつ進めても条件を満たす ex. sum_+s[right] <= K):
-        # right ++
+        # right ++ の処理
         sum_ += s[right]
         right += 1
 
