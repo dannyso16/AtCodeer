@@ -104,9 +104,52 @@ ceil(a / b)
 (a + (b / 2)) / b
 ```
 
+### modありの組み合わせの数を高速に計算
+
+```python
+MOD = 10**9 + 7
+# mod計算を含めて大きな数でもできるようにしたもの
+def comb_fermat(n: int, r: int) -> int:
+    """mod MOD を法とした組み合わせの数
+    フェルマー小定理を利用: O(r)
+    a^(-1) ≡ a^(p-2) (mod p), p : 素数
+    割り算を逆元の掛け算に変形できる
+    return nCr (mod MOD)	
+    """
+    if r > n:
+        return 0
+    if r > n-r:
+        return comb_fermat(n, n-r)
+    mul, div = 1, 1
+    for i in range(r):
+        mul *= n-i
+        mul %= MOD
+        div *= i+1
+        div %= MOD
+
+    ret = mul * pow(div, MOD-2, MOD) % MOD
+    return ret
+```
+
+### 繰り返し二乗法
+
+pythonだと`pow(a, b, M)`で高速に $a^b \ mod \ M$ が計算できるが、下に実装例も載せておく
+
+```python
+MOD = 10**9 + 7
+
+def modpow(a: int, p: int, mod: int) -> int:
+    # return a**p (mod MOD) O(log p)
+    if p == 0:
+        return 1
+    if p % 2 == 0:
+        half = modpow(a, p//2, mod)
+        return half*half % mod
+    else:
+        return a * modpow(a, p-1, mod) % mod
+```
 
 
-フェルマーの定理
 
 
 
@@ -182,29 +225,6 @@ def comb_naive(n: int, r: int) -> int:
     return ret % MOD
 
 
-# 2. mod計算を含めて大きな数でもできるようにしたもの
-def comb_fermat(n: int, r: int) -> int:
-    """"mod MOD を法とした組み合わせの数
-    フェルマー小定理を利用: O(r)
-    a^(-1) ≡ a^(p-2) (mod p), p : 素数
-    割り算を逆元の掛け算に変形できる
-    return nCr (mod MOD)
-    """
-    if r > n:
-        return 0
-    if r > n-r:
-        return comb_fermat(n, n-r)
-    mul, div = 1, 1
-    for i in range(r):
-        mul *= n-i
-        mul %= MOD
-        div *= i+1
-        div %= MOD
-
-    ret = mul * pow(div, MOD-2, MOD) % MOD
-    return ret
-
-
 # 3. 動的計画法でパスカル三角形を使う
 com = [[0]*2000 for _ in range(2000)] # com[2000][2000]
 com[0][0] = 1
@@ -256,6 +276,71 @@ def comb(n: int, r: int) -> int:
 ## 繰り返し二乗法
 
 ```python
+# a^p (mod MOD) 繧帝ｫ倬溘↓豎ゅａ繧区婿?�ｿｽ�ｿｽ?
+# 譎ｮ騾壹↓險育ｮ励☆繧九→縲O(p)縲?�ｿｽ�ｿｽ?縺鯉ｼ薫(log p) 縺ｧ豎ゅ∪?�ｿｽ�ｿｽ?
+# p is even:  a^p = a^(p/2) * a^(p/2)
+# p is odd:   a^p = a * a^(p-1)
+# p is 0:     a^p = 1
+# python 縺ｮ蝣ｴ蜷茨ｼ鯉ｿｽ?縺ｿ霎ｼ縺ｿ縺ｮ pow(a, p, MOD) 縺ｨ縺吶ｌ縺ｰ?�ｿｽ�ｿｽ??�ｿｽ�ｿｽ???�ｿｽ�ｿｽ?
+
+MOD = 10**9 + 7
+
+def modpow_bitwise(a: int, p: int, mod: int) -> int:
+    # return a**p (mod MOD) O(log p)
+    # 陝ｻ譛ｬp115??�ｿｽ�ｿｽ?�ｿｽ�ｿｽ莠御ｹ励＠縺ｦ?�ｿｽ�ｿｽ?縺阪↑縺後ｉ 1 縺檎ｫ九▲縺ｦ?�ｿｽ�ｿｽ?繧九→縺薙ｍ?�ｿｽ�ｿｽ?縺代ｒ菴ｿ?�ｿｽ�ｿｽ?
+    res = 1
+    while p > 0:
+        if p & 1 > 0:
+            res = res * a % mod
+        a = a**2 % mod
+        p >>= 1
+    return res
+
+###### 陦鯉ｿｽ??�ｿｽ�ｿｽver #####
+
+
+def mat_pow(base, p):
+    # base: matrix
+    # return base^p
+    # 縺滂ｿｽ??�ｿｽ�ｿｽ??�ｿｽ�ｿｽ?�ｿｽ�ｿｽ縺ゅ▲縺ｦ?�ｿｽ�ｿｽ??�ｿｽ�ｿｽ?
+    ret = None
+    mag = base
+    while p > 0:
+        if p & 1:
+            ret = mag if ret is None else mat_dot(mag, ret)
+        mag = mat_dot(mag, mag)
+        p >>= 1
+    return ret
+
+
+def mat_dot(m1, m2):
+    # a,b: matrix
+    # (A x B) @ (B x C) ??�ｿｽ�ｿｽ?(A x C)
+    # verified ABC021C
+    if len(m1[0]) != len(m2):
+        raise ValueError('Check matrix shape.')
+    A = len(m1)
+    C = len(m2[0])
+    m2_t = list(zip(*m2))  # m2 ?�ｿｽ�ｿｽ]?�ｿｽ�ｿｽu
+    ret = [[None]*C for _ in range(A)]
+    for row in range(A):
+        for col in range(C):
+            v = 0
+            for a, b in zip(m1[row], m2_t[col]):
+                v += a*b
+            ret[row][col] = v
+    return ret
+
+
+if __name__ == '__main__':
+    MOD = 10**9 + 7
+    print(modpow(100, 30000, MOD))
+    print(modpow_bitwise(100, 30000, MOD))
+    m1 = [[1, 2, 3], [2, 3, 4]]
+    m2 = [[2, 2, 2], [3, 3, 3], [4, 4, 4]]
+    print(mat_dot(m1, m2))
+    m3 = [[1, 0], [0, 1]]
+    print(mat_pow(m3, 5))
 
 ```
 
