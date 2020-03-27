@@ -85,6 +85,94 @@ d = deque("string")
 
 
 
+## ABC087
+
+### 重み付きUnion Find
+
+普通の UnionFind 木のサポートする処理は
+
+| クエリ       | 処理内容                                        |
+| :----------- | :---------------------------------------------- |
+| merge(x, y)  | x を含むグループと y を含むグループをマージする |
+| issame(x, y) | x と y が同じグループにいるかどうかを判定する   |
+
+ですが、重みつきUnionFind木は少し発展させて、各ノード v に重み weight(v) を持たせ、**ノード間の距離**も管理するようなものになっています。
+
+| クエリ         | 処理内容                                                     |
+| :------------- | :----------------------------------------------------------- |
+| merge(x, y, w) | weight(y) = weight(x) + w となるように x と y をマージする   |
+| issame(x, y)   | x と y が同じグループにいるかどうかを判定する                |
+| diff(x, y)     | x と y とが同じグループにいるとき、weight(y) - weight(x) をリターンする |
+
+```python 
+import sys
+
+
+class WeightedUnionFind:
+    def __init__(self, N: int):
+        """N: 大きさ
+        size: 連結成分の大きさ
+        weight: rootからの重み
+        """
+        self.par = [i for i in range(N)]
+        #self.size = [1]*N
+        self.rank = [0]*N
+        self.weight = [0]*N
+
+    def root(self, x: int) -> int:
+        """根を求める"""
+        if self.par[x] == x:  # if root
+            return x
+        else:
+            root_x = self.root(self.par[x])  # 経路圧縮
+            self.weight[x] += self.weight[self.par[x]]
+            self.par[x] = root_x
+            return root_x
+
+    def get_weight(self, x: int) -> int:
+        """x の重みを取得"""
+        self.root(x)  # 経路圧縮
+        return self.weight[x]
+
+    def get_diff(self, x: int, y: int) -> int:
+        """x と y の差分を取得"""
+        if not self.is_same(x, y):
+            return "?"  # 判定不可
+        return self.get_weight(y) - self.get_weight(x)
+
+    def is_same(self, x: int, y: int) -> bool:
+        """x と y が同じ集合に属するか否か"""
+        return self.root(x) == self.root(y)
+
+    def unite(self, x: int, y: int, w: int) -> bool:
+        """weight[y] = weight[x]+w となるようにmerge(x が y の親)
+        return True if merge 可能"""
+        if self.is_same(x, y):
+            return False
+        root_x = self.root(x)
+        root_y = self.root(y)
+        w += (self.weight[x] - self.weight[y])  # 重みを補正
+        if self.rank[root_x] < self.rank[root_y]:
+            self.par[root_x] = root_y
+            self.weight[root_x] = -w
+        else:
+            self.par[root_y] = root_x
+            self.weight[root_y] = w
+            if self.rank[root_x] == self.rank[root_y]:
+                self.rank[root_x] += 1
+        return True
+
+    def get_size(self, x: int) -> int:
+        """xの属するグループのサイズ"""
+        return self.size[self.root(x)]
+
+
+```
+
+
+
+
+
 ## ABC156
 
 ### 切り上げ
@@ -101,6 +189,7 @@ ceil(a / b)
 ### 四捨五入(a / b)
 
 ```python
+int(x+0.5) # round
 (a + (b / 2)) / b
 ```
 
@@ -149,11 +238,112 @@ def modpow(a: int, p: int, mod: int) -> int:
         return a * modpow(a, p-1, mod) % mod
 ```
 
+## ABC142
+
+### 素因数分解
+
+```python
+def factorize(a:int)->dict:
+    """素因数分解 O(sqrt(N))
+    return 素因数のdict
+    """
+    ps = {}
+    i = 2
+    nokori = a
+    while i*i <= nokori:
+        if nokori%i==0:
+            cnt = 0
+            while nokori%i==0:
+                cnt += 1
+                nokori //= i
+            ps[i] = cnt
+        i += 1
+    if nokori != 1:
+        ps[nokori] = 1
+    return ps
+```
 
 
 
+## ABC034
+
+平均の最大化→答え（目標）を決めてしまう。つまり「平均の最大値を求める」と考えず、「つくれる最大の閾値を求める」と考える
+
+### 二部探索
+
+```python
+def check(m: int) -> bool:
+    """m 以上で条件を満たすかどうか
+    mで条件を満たす → return True
+    """
+    # なんか
+    return bool
 
 
+high = 100 # 必ず条件を満たす
+low = 0    # 必ず条件を満たさない
+while high - low > 1e-6:
+    mid = (high + low) / 2
+    if check(mid):
+        low = mid
+    else:
+        high = mid
+print(low)
+
+```
+
+
+
+## ARC32
+
+### 重みなしDisjoint set (Union Find)
+
+```python
+import sys
+
+
+class UnionFind:
+    def __init__(self, N: int):
+        """N: 大きさ
+        size: 連結成分の大きさ
+        """
+        self.par = [i for i in range(N)]
+        self.size = [1]*N
+        self.rank = [1]*N
+
+    def root(self, x: int) -> int:
+        """根を求める"""
+        if self.par[x] == x:  # if root
+            return x
+        else:
+            self.par[x] = self.root(self.par[x])  # 経路圧縮
+            return self.par[x]
+
+    def is_same(self, x: int, y: int) -> bool:
+        """x と y が同じ集合に属するか否か"""
+        return self.root(x) == self.root(y)
+
+    def unite(self, x: int, y: int):
+        """y を x の属する集合に併合"""
+        root_x = self.root(x)
+        root_y = self.root(y)
+        if root_x == root_y:
+            return
+        if self.rank[root_x] == self.rank[root_y]:
+            self.rank[root_x] += 1
+        elif self.rank[root_x] < self.rank[root_y]:
+            root_x, root_y = root_y, root_x
+        # 短いほう(y)を長いほう(x)にくっつける
+        self.par[root_y] = root_x
+        self.size[root_x] += self.size[root_y]
+        self.size[root_y] = 0  # もういらない
+
+    def get_size(self, x: int) -> int:
+        """xの属するグループのサイズ"""
+        return self.size[self.root(x)]
+```
+
+連結成分の数はrootが自分のものの数 `sum([i == uf.root(i) for i in range(N)])`
 
 # ライブラリ
 
@@ -183,26 +373,6 @@ def sieve(n:int)->list:
             for j in range(i*2, n+1, i):
                 is_prime[j] = False
     return is_prime
-
-
-def factorize(a:int)->dict:
-    """素因数分解 O(sqrt(N))
-    return 素因数のdict
-    """
-    ps = {}
-    i = 2
-    nokori = a
-    while i*i <= nokori:
-        if nokori%i==0:
-            cnt = 0
-            while nokori%i==0:
-                cnt += 1
-                nokori //= i
-            ps[i] = cnt
-        i += 1
-    if nokori != 1:
-        ps[nokori] = 1
-    return ps
 
 ```
 
@@ -344,5 +514,67 @@ if __name__ == '__main__':
 
 ```
 
+## 三部探索
 
+- 二部探索：bool値の変わる境界を探す
+- 三部探索：凸関数の極値を探す
+
+三部探索で整数解を求めたいときは，
+
+```python
+def f(x:float)->int:
+    x = int(x+0.5) # round
+```
+
+のようにfloatで受けて，intにするといい．
+答えは誤差を考慮して，前後の値も候補に入れておくと安心
+
+```python
+def tri_search(f: "f(x:float)->float", left: float, right: float,
+               is_convex_downward=True, iter=100) -> float:
+    """is_convex_downward: 下に凸 return minimum
+    else: 上に凸 return Maximum
+    f: convex upward -> -f: convex downward
+    """
+    for _ in range(iter):
+        ml = (left*2 + right) / 3
+        mr = (left + right*2) / 3
+        if is_convex_downward:
+            f_ml, f_mr = f(ml), f(mr)
+        else:
+            f_ml, f_mr = -f(ml), -f(mr)
+
+        if f_ml < f_mr:
+            right = mr
+        else:
+            left = ml
+    print(left, right)
+    return (right + left) / 2
+```
+
+# python vs pypy
+
+基本的にpypyのが明らかに早い
+
+ただし `+=` のような文字列結合に弱い。**pypyでは`string.join('a')`を使用する。**
+
+あと**再帰が弱い**。遅いし上限も小さい
+
+```python
+import sys
+sys.setrecursionlimit(10**7)
+
+def dp(N) :
+    if N == 0 :
+        return 0
+    else :
+        return 1 + dp(N - 1)
+
+print(dp(600000))
+```
+
+|          | Python  | PyPy    |
+| :------- | :------ | ------- |
+| **最高** | 915 ms  | 2680 ms |
+| **最低** | 1270 ms | 2705 ms |
 
