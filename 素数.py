@@ -7,7 +7,9 @@
   --factorize(a:int)->dict
 
 """
-def sieve(n:int)->list:
+
+
+def sieve(n: int) -> list:
     """Sieve of Eratoshenes O(N loglog N)
     return the list of is_prime (0, n]
     """
@@ -23,7 +25,7 @@ def sieve(n:int)->list:
     return is_prime
 
 
-def factorize(a:int)->dict:
+def factorize(a: int) -> dict:
     """prime factorization O(sqrt(N))
     return dict of prime factor
     """
@@ -31,9 +33,9 @@ def factorize(a:int)->dict:
     i = 2
     nokori = a
     while i*i <= nokori:
-        if nokori%i==0:
+        if nokori % i == 0:
             cnt = 0
-            while nokori%i==0:
+            while nokori % i == 0:
                 cnt += 1
                 nokori //= i
             ps[i] = cnt

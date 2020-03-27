@@ -4,13 +4,18 @@
 # a^(-1) ≡ a^(p-2) (mod p), p is prime number
 # 割り算 -> 逆元の掛け算に変形させる
 
+from math import factorial
 MOD = 10**9 + 7
-def comb_fermat(n:int, r:int)->int:
+
+
+def comb_fermat(n: int, r: int) -> int:
     # Fermat's little theorem: O(r)
     # return nCr (mod MOD)
-    if r > n: return 0
-    if r > n-r: return comb_fermat(n, n-r)
-    mul,div = 1,1
+    if r > n:
+        return 0
+    if r > n-r:
+        return comb_fermat(n, n-r)
+    mul, div = 1, 1
     for i in range(r):
         mul *= n-i
         mul %= MOD
@@ -20,15 +25,18 @@ def comb_fermat(n:int, r:int)->int:
     ret = mul * pow(div, MOD-2, MOD) % MOD
     return ret
 
+
 # python らしいごり押し (あまり大きくないときに使おう)
-from math import factorial
-def comb_naive(n:int, r:int)->int:
+def comb_naive(n: int, r: int) -> int:
     ret = factorial(n) // (factorial(n-r)*factorial(r))
     return ret % MOD
+
 
 # com[2000][2000]
 com = [[0]*2000 for _ in range(2000)]
 com[0][0] = 1
+
+
 def calc_comb():
     # k,n <= 2000
     # dp (Pascal's triangle): O(n*k)
@@ -43,8 +51,9 @@ def calc_comb():
 # 逆元を前計算(O(MAX_N))しておくことでクエリをO(1)で返す
 MAX = 10**5
 fac = [0]*MAX  # fac[n]:  (n!) mod p
-finv = [0]*MAX # finv[n]: (n!)^-1 mod p
+finv = [0]*MAX  # finv[n]: (n!)^-1 mod p
 inv = [0]*MAX  # inv[n]:  (n)^-1 mod -p
+
 
 def comb_init():
     global fac, finv, inv
@@ -53,13 +62,16 @@ def comb_init():
     inv[1] = 1
     for i in range(2, MAX):
         fac[i] = fac[i-1] * i % MOD
-        inv[i] = MOD - inv[MOD%i] * (MOD//i)%MOD
+        inv[i] = MOD - inv[MOD % i] * (MOD//i) % MOD
         finv[i] = finv[i-1] * inv[i] % MOD
 
-def comb(n:int, r:int)->int:
+
+def comb(n: int, r: int) -> int:
     global fac, finv
-    if n < r: return 0
-    if n < 0 or r < 0: return 0
+    if n < r:
+        return 0
+    if n < 0 or r < 0:
+        return 0
     return fac[n] * (finv[r] * finv[n-r] % MOD) % MOD
 
 

@@ -11,8 +11,9 @@ def f(x:float)->int:
 
 """
 
-def tri_search(f:"f(x:float)->float", left:float, right:float,
-               is_convex_downward=True, iter=100)->float:
+
+def tri_search(f: "f(x:float)->float", left: float, right: float,
+               is_convex_downward=True, iter=100) -> float:
     """is_convex_downward: 下に凸 return minimum
     else: 上に凸 return Maximum
     f: convex upward -> -f: convex downward
@@ -33,10 +34,11 @@ def tri_search(f:"f(x:float)->float", left:float, right:float,
     return (right + left) / 2
 
 
-def f_conv_up(x:float)->float:
+def f_conv_up(x: float) -> float:
     return -(x-5)**2 + 10
 
-def f_conv_down(x:float)->float:
+
+def f_conv_down(x: float) -> float:
     return (x-5)**2 + 10
 
 
