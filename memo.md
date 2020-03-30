@@ -1,5 +1,99 @@
 # Memo
 
+## ABC160
+
+- $頂点数 < 10^3, 辺数 < 10^3$ なら、全点間最短距離を出せる（$O(N^2)$程度）
+- 制約が$頂点数 < 10^3$ならまず2重ループから考えてもいい
+- 近道がある
+  - 近道を使う時と使わないときを考えて、minをとったり
+
+### ある始点から各頂点への最短経路をだす（ダイクストラ）
+
+```python
+from collections import deque
+
+
+def dijkstra(start: int, edges: list):
+    """単一始点最短距離  O(|E|log|V|)
+    start: int  始点
+    edges: list 隣接リスト
+    """
+    dist = [float('inf') for _ in range(N)]  # list dist[|V|]
+    dist[start] = 0
+    prev_v = [-1]*(len(dist))  # 最短経路でのひとつ前の頂点
+    q = deque([(0, start)])    # （暫定的な距離，頂点）
+    while q:
+        d_cur, cur = q.pop()
+        if dist[cur] < d_cur:  # すでに探索済み
+            continue
+        for nex, cost in edges[cur]:
+            if dist[nex] > dist[cur]+cost:
+                dist[nex] = dist[cur]+cost
+                q.append((dist[nex], nex))
+                prev_v[nex] = cur
+    return dist
+
+
+if __name__ == "__main__":
+    # 入力（0-indexed）
+    edges = [[] for _ in range(N)]
+
+    # 隣接リストを定義
+
+    # 全点間で計算
+    for i in range(N):
+        d = dijkstra(i, edges)
+```
+
+### 最短経路を復元（ダイクストラ）
+
+```python
+from collections import deque
+
+
+def get_shortest_path(start: int, goal: int, edges: list):
+    """単一始点最短距離  O(|E|log|V|)
+    start: int  始点
+    goal: int   終点
+    edges: list 隣接リスト
+    """
+    dist = [float('inf') for _ in range(N)]  # list dist[|V|]
+    dist[start] = 0
+    prev_v = [-1]*(len(dist))  # 最短経路でのひとつ前の頂点
+    q = deque([(0, start)])    # （暫定的な距離，頂点）
+    while q:
+        d_cur, cur = q.pop()
+        if dist[cur] < d_cur:  # すでに探索済み
+            continue
+        for nex, cost in edges[cur]:
+            if dist[nex] > dist[cur]+cost:
+                dist[nex] = dist[cur]+cost
+                q.append((dist[nex], nex))
+                prev_v[nex] = cur
+    
+    # 以下 path の復元
+    path = []
+    v = goal
+    while v != -1:
+        path.append(v)
+        v = prev_v[v]
+    path = path[::-1] # reverse
+    return path       # [start, ., ., goal]
+
+
+if __name__ == "__main__":
+    # 入力（0-indexed）
+    edges = [[] for _ in range(N)]
+
+    # 隣接リストを定義
+
+    # 最短経路を出力
+    path = get_shortest_path(i, edges)
+    print(path)
+```
+
+
+
 ## ABC159
 
 ### 回文判定
