@@ -332,6 +332,35 @@ def modpow(a: int, p: int, mod: int) -> int:
         return a * modpow(a, p-1, mod) % mod
 ```
 
+
+
+## ABC155
+
+### Counterで数を数えて最頻値を昇順に出力
+
+```python
+from collections import Counter
+ 
+N = int(input())
+s = ['a', 'z', 'z', 'b', 'b']
+ 
+c = Counter(s)
+c = c.most_common() # これでリストになる
+				  # [('a', 1), ('z', 2), ('b', 2)]
+c.sort(key=lambda x: x[0])  # [('a', 1), ('b', 2), ('z', 2)]
+c.sort(key=lambda x: x[1], reverse=True) # 出現回数順
+ 
+most_cnt = c[0][1]
+for key, cnt in c:
+    if cnt == most_cnt:
+        print(key)
+    else:
+```
+
+
+
+
+
 ## ABC142
 
 ### 素因数分解
