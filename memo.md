@@ -359,7 +359,13 @@ for key, cnt in c:
 
 
 
+## ABC154
 
+### 尺取り法
+
+
+
+### 桁DP
 
 ## ABC142
 
@@ -701,3 +707,273 @@ print(dp(600000))
 | **最高** | 915 ms  | 2680 ms |
 | **最低** | 1270 ms | 2705 ms |
 
+
+
+# テクニックなど
+
+## 入力関係
+
+`input`より`stdin.readline`のが速い（これでTLEなどはないけど）。改行文字が厄介なので、`rstrip`を使う
+
+```python
+from sys import stdin
+input = stdin.readline().rstrip
+```
+
+
+
+```python
+N
+N = int(input())-1
+
+a_1, ..., a_N
+a = list(map(lambda x: int(x)-1, input().split())) # int -> lambdaに変える
+
+a0 b0
+a1 b1
+...
+aN bN
+ab = [tuple(map(int, input().split())) for _ in range(N)]
+```
+
+
+
+## 出力
+
+改行しながら
+
+```python
+ans = [1, 2, 3]
+print(*ans, sep='\n')
+# 1
+# 2
+# 3
+```
+
+flushする
+
+```python
+print("hello", flush=True)
+```
+
+
+
+## リスト
+
+### 条件を満たす個数を求める
+
+```python
+data = range(1, 100)
+cnt = len([x for x in data if (条件)])
+```
+
+### 行列のprintを見やすく
+
+```python
+data = [[1, 2, 3],
+        [4, 5, 6]]
+print(*data, sep='\n')
+# [1, 2, 3]
+# [4, 5, 6]
+```
+
+
+
+### 行列の転置
+
+```python
+data = [[1, 2, 3],
+        [4, 5, 6]]
+data_T = [x for x in zip(*data)]
+print(*data_T, sep='\n')
+# [1, 4]
+# [2, 5]
+# [3, 6]
+```
+
+### 行列をフラットに
+
+```python
+data = [[1, 2, 3],
+        [4, 5, 6]]
+
+"""1. itertools.chain.from_iterable
+1万行で500 us
+"""
+import itertools
+flat = list(itertools.chain.from_iterable(data))
+
+"""2. 初期値を[]にして要素をsumで+していく
+1万行で400 ms
+"""
+flat = sum(data, [])
+
+```
+
+### 削除
+
+```python
+a = [1, 2, 3, 4, 5]
+
+del a[1]        # インデックス指定で削除したい場合
+
+del a[1:3]      # スライスで部分リストを指定して削除も可能
+
+x = a.pop(1)    # popでもインデックス指定で削除可能
+
+a.remove(3)     # オブジェクトを指定して削除したい場合
+```
+
+### ソート
+
+```python
+a = [1, 3, 2, 4,]
+
+"""基本
+"""
+sorted(a)   # ソート結果を返す
+a.sort()    # 破壊的ソート
+
+"""keyを指定する
+"""
+a = [(1, 'One', '1'), (1, 'One', '01'),
+     (2, 'Two', '2'), (2, 'Two', '02'),
+     (3, 'Three', '3'), (3, 'Three', '03')]
+print(sorted(a, key=lambda x: x[1]))
+
+
+"""keyを複数指定
+"""
+a = [(1, 'One', '1'), (1, 'One', '01'),
+     (2, 'Two', '2'), (2, 'Two', '02'),
+     (3, 'Three', '3'), (3, 'Three', '03')]
+print(sorted(a, key=lambda x: (x[1], x[2], x[0])))
+```
+
+### deepcopy
+
+```python
+a = [1, 2, 3, 4, 5]
+
+"""一次元なら以下でできる
+"""
+b = a[:]    # 終点始点を指定してすべてをスライスで取得（結果コピーと同じ）
+
+"""copy モジュールだと多重リストでも安心
+"""
+from copy import deepcopy
+b = deepcopy(a)
+```
+
+### 反転
+
+```python
+a = [1, 2, 3]
+reverse = a[::-1]
+```
+
+
+
+
+
+## 文字列
+
+### 大文字や小文字にそろえる
+
+```python
+s = "abcAA"
+s.upper()
+s.lower()
+```
+
+### stringモジュールの文字列定数
+
+小文字や大文字などの一覧が取れる
+
+```python
+print(string.ascii_lowercase)
+# abcdefghijklmnopqrstuvwxyz
+
+print(string.ascii_uppercase)
+# ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+print(string.ascii_letters)
+# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+print(string.digits)
+# 0123456789
+
+print(string.hexdigits)
+# 0123456789abcdefABCDEF
+```
+
+
+
+## itertoolsまとめ
+
+itertoolsの戻り値はイテレータなのでリストなどに変換しよう
+
+
+
+### 累積和：`itertools.accumulate`
+
+```python
+from itertools import accumulate
+
+a = list(range(1, 11))
+# [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+b = list(accumulate(a))    
+# [1, 3, 6, 10, 15, 21, 28, 36, 45, 55]
+```
+
+### 条件が真である限り除外／取り出し：`dropwhile`、`takewhile`
+
+```python
+from itertools import dropwhile, takewhile
+
+a = [3, 6, 1, 7, 2, 5]
+
+b = dropwhile(lambda x: x != 1, a)  # 1が出るまでを除外する
+# [1, 7, 2, 5]
+
+c = takewhile(lambda x: x != 1, a)  # 1が出るまでを取り出す
+# [3, 6]
+```
+
+### 連続する要素のグループ化：`groupby`
+
+あらかじめソートしとくといいかも
+
+```python
+from itertools import groupby
+
+a = [1, 1, 2, 3, 3, 3, 1, 2, 2]
+
+for key, value in groupby(a):
+    print(key, list(value))
+1 [1, 1]
+2 [2]
+3 [3, 3, 3]
+1 [1]
+2 [2, 2]
+
+# keyの指定ができる
+# 以下は偶奇でわけてる
+for key, value in groupby(a, key=lambda x: x % 2):
+    print(key, list(value))
+1 [1, 3]
+0 [2, 4]
+1 [3, 1, 1]
+0 [2, 4]
+```
+
+
+
+
+
+# 参考
+
+[Qiita-Pythonで競プロやるときによく書くコードをまとめてみた]([https://qiita.com/y-tsutsu/items/aa7e8e809d6ac167d6a1#%E7%B4%AF%E7%A9%8D%E5%92%8C](https://qiita.com/y-tsutsu/items/aa7e8e809d6ac167d6a1#累積和))
+
+[itertools](https://docs.python.org/ja/3/library/itertools.html#itertools.chain.from_iterable)
