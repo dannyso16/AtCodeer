@@ -361,11 +361,47 @@ for key, cnt in c:
 
 ## ABC154
 
-### 尺取り法
-
-
-
 ### 桁DP
+
+## ABC146
+
+実装方針がたつが、実装が難しい典型…
+
+### 幅優先探索
+
+```python
+from collections import deque
+
+N = int(input())
+
+# 辺情報
+edges = [[] for _ in range(N)]
+ab = [tuple(map(lambda x: int(x)-1, input().split())) for _ in range(N-1)]
+for a, b in ab:
+    edges[a].append(b)
+    edges[b].append(a)
+
+root = 0 # 探索の始点
+
+visited = [False]*N
+visited[root] = True
+
+# 以下BFS
+stack = deque()  # (vertex, ●●)
+
+while stack:
+    v, hoge = stack.pop()
+    for to in edges[v]: 
+        assert 条件, "エラーしがちなので"
+        if visited[to]:
+            continue
+        visited[to] = True
+        # 行き先の頂点での処理
+        stack.append((to, hogehoge))
+
+```
+
+
 
 ## ABC142
 
@@ -420,6 +456,36 @@ while high - low > 1e-6:
 print(low)
 
 ```
+
+## ABC032
+
+### しゃくとり法
+
+ABC032, ABC038, ABC154
+
+```python
+s = list(map(int, input().split()))
+
+#  [left, right)で考えることに注意!
+right = 0
+for left in range(N):
+    while (right < N) and (right をひとつ進めても条件を満たす ex. sum_+s[right] <= K):
+        # right ++ の処理
+        sum_ += s[right]
+        right += 1
+
+    # この時点でright は条件を満たす最大値 [left, right)
+    # ans の更新とかする
+
+    # left++ する準備
+    if right == left:
+        right += 1
+    else:
+        sum_ -= s[left]
+
+```
+
+
 
 
 
@@ -870,6 +936,18 @@ b = deepcopy(a)
 ```python
 a = [1, 2, 3]
 reverse = a[::-1]
+```
+
+### anyとall
+
+すべて探索したか、とかで便利
+
+```python
+a = [True, False, True]
+if any(a):
+    実行される
+if all(a):
+    実行されない
 ```
 
 
