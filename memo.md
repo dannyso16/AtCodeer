@@ -1,5 +1,67 @@
 # Memo
 
+### 優先度付きキュー（Priority queue）:heapq
+
+- 最小値（最大値）を `O(logN)`で取り出す
+- 要素を `O(logN)`で挿入する
+
+通常は`O(N)`かかるから早い。注意点としてはデータは常にソートされた状態で保持されているわけではない。
+
+```python
+import heapq 
+
+a = [1, 6, 8, 0, -1]
+heapq.heapify(a)  # リストを優先度付きキューに変換
+
+_min = heapq.heappop(a)  # 最小値の取り出し
+
+heapq.heappush(a, -2)  # 要素の挿入
+```
+
+-1をかけておけば最大値も取り出せる
+
+```python
+import heapq
+
+a = [1, 6, 8, 0, -1]
+a = list(map(lambda x: x*(-1), a))  # 各要素を-1倍
+
+heapq.heapify(a)
+_max = heapq.heappop(a)*(-1)  # 最大値の取り出し
+
+heapq.heappush(a, -1*(-2)) # 要素の挿入
+```
+
+### 二部探索：bisect
+
+ソート状態を保ったまま要素を挿入できたりする
+
+ソート済みのリストに挿入
+
+```python
+import bisect
+
+l = [1, 3, 4]
+a = 2
+idx = bisect.bisect(l, a) # 挿入するindexを取得
+bisect.insort(l, a)       # 挿入
+# l: [1, 2, 3, 4]
+```
+
+同じ要素があるときに右か左かも指定できる
+
+```python
+import bisect
+
+idx_r = bisect.bisect_right(l, a) # bisect.bisectと同じ
+idx_l = bisect.bisect_left(l, a)
+
+bisect.insort_right(l, a) # insort()と同じ
+bisect.insort_left(l, a)
+```
+
+
+
 ## ABC160
 
 - $頂点数 < 10^3, 辺数 < 10^3$ なら、全点間最短距離を出せる（$O(N^2)$程度）
@@ -984,6 +1046,15 @@ print(string.digits)
 print(string.hexdigits)
 # 0123456789abcdefABCDEF
 ```
+
+### 文字とasciiの変換
+
+```python
+ord("a")  # 97
+chr("97") # 'a'
+```
+
+
 
 
 
