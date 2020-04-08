@@ -1,6 +1,64 @@
 # Memo
 
-### 一番下の桁で条件分岐したり桁を増やしたり
+### 再帰の時、漸化式を前計算できそうならメモ化したらいい
+
+`functools.lru_cache`で再帰関数に`@lru_cache`デコレータをつけるだけ！ただし普通のループで計算できる漸化式などはループで書いたらいい。
+
+```python
+from functools import lru_cache
+
+# max_size: 128 (default)
+# 2 の累乗であるときが最も効率的に動作
+# noneを指定するとキャッシュは際限なく大きくなる
+@lru_cache(maxsize=None)
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n-1) + fib(n-2)
+
+
+print([fib(n) for n in range(16)])
+# [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+
+print(fib.cache_info())
+# CacheInfo(hits=28, misses=16, maxsize=None, currsize=16)
+
+```
+
+
+
+
+
+### f文字列(python3.6～)
+
+.`.format`なしで簡潔にかけるよ。
+
+```python
+x = 1
+print(f"x={x}")    # x=1
+print(f"x={x:04}") # x=0001 ゼロ埋め
+
+y = 0.1234
+print(f"y={y:.2f}") # y=0.12 桁指定
+```
+
+
+
+### 漸化式の前計算
+
+$a_0=1, a_i = 2a_{i-1} + 3$ の計算結果を保持したいとき
+
+```python
+a = [1]   # a_0
+for i in range(100):  # a_100まで計算
+    a.append(2*a[-1] + 3)
+```
+
+
+
+
+
+### 10進数の一番下の桁で条件分岐したり桁を増やしたり
 
 10進数は10倍、10で割るでシフトできる
 
