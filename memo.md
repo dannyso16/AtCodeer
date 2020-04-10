@@ -1,5 +1,43 @@
 # Memo
 
+### 深さ優先探索
+
+パスを全列挙する→dfs呼び出し後探索済みをfalseにする
+
+ABC054 C - One-stroke Path
+
+```python
+def main():
+    N, M = map(int, input().split())
+    edges = [[] for _ in range(N)]
+    for _ in range(M):
+        a, b = map(lambda x: int(x)-1, input().split())
+        edges[a].append(b)
+        edges[b].append(a)
+
+    visited = [False]*N
+    visited[0] = True
+    ans = 0
+
+    def dfs(v: int):
+        nonlocal visited
+        nonlocal ans
+        if all(visited):
+            ans += 1
+            return
+        for n in edges[v]:
+            if visited[n]:
+                continue
+            visited[n] = True
+            dfs(n)
+            visited[n] = False
+        return
+
+    dfs(0)
+```
+
+
+
 ### ランレングス圧縮
 
 ABC019B - 高橋くんと文字列圧縮 そのまま
@@ -624,7 +662,7 @@ for key, cnt in c:
 
 ### bitDP
 
-「ある集合の部分集合を添字とした DP」。順列を全探索したりできる $O(M2^N)$
+bitDP は「ある集合の部分集合を添字とした DP」。順列を全探索したりできる $O(M2^N)$
 
 [ABC 142 E - Get Everything (500 点)](https://drken1215.hatenablog.com/entry/2019/09/29/103500)
 
@@ -1320,7 +1358,16 @@ for key, value in groupby(a, key=lambda x: x % 2):
 0 [2, 4]
 ```
 
+### 順列　permutation
 
+ABC054 C - One-stroke Path
+
+```python
+from itertools import permutations
+
+print(*permutations(range(3)))     # 3!　通り
+print(*permutations(range(3), 2))  # 3P2
+```
 
 
 
