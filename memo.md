@@ -4,7 +4,7 @@
 
 パスを全列挙する→dfs呼び出し後探索済みをfalseにする
 
-ABC054 C - One-stroke Path
+- ABC054 C - One-stroke Path: 以下のコード
 
 ```python
 def main():
@@ -40,9 +40,9 @@ def main():
 
 ### ランレングス圧縮
 
-ABC019B - 高橋くんと文字列圧縮 そのまま
+- ABC019B - 高橋くんと文字列圧縮 そのまま
 
-ABC136 D - Gathering Children 
+- ABC136 D - Gathering Children 
 
 周期が2なのではじめ偶数番目にいた子供は最後も偶数番目にいるのがポイント
 
@@ -73,7 +73,7 @@ def rle(s: str) -> str:
 
 ### ワーシャルフロイド法
 
-ABC079- D - Wall
+- ABC079- D - Wall  やや応用
 
 全頂点間の最短距離を $O(V^3)$ で求める
 
@@ -125,13 +125,13 @@ matrix[0][1] # 点0から点1の最短距離
 
 ### 条件を満たす最小値を探索する
 
-ABC093C - Same Integers
+- ABC093 C - Same Integers
 
 操作によって合計は２しか増えない→偶奇は不変。操作を積み上げる思考ではなく、最後等しくなった値がいくつになるか考える
 
 ### 長い方に合わせるzip - itertools.zip_longest
 
-ABC058-B- ∵∴∵(200)
+- ABC058-B- ∵∴∵(200)
 
 ```python
 a = [1, 2, 3]
@@ -188,7 +188,7 @@ print(fib.cache_info())
 
 ### f文字列(python3.6～)
 
-.`.format`なしで簡潔にかけるよ。
+`.format`なしで簡潔にかけるよ。
 
 ```python
 x = 1
@@ -664,7 +664,7 @@ for key, cnt in c:
 
 bitDP は「ある集合の部分集合を添字とした DP」。順列を全探索したりできる $O(M2^N)$
 
-[ABC 142 E - Get Everything (500 点)](https://drken1215.hatenablog.com/entry/2019/09/29/103500)
+- [ABC 142 E - Get Everything (500 点)](https://drken1215.hatenablog.com/entry/2019/09/29/103500)
 
 ## ABC146
 
@@ -764,7 +764,9 @@ print(low)
 
 ### しゃくとり法
 
-ABC032, ABC038, ABC154
+- ABC032
+- ABC038
+- ABC154
 
 ```python
 s = list(map(int, input().split()))
@@ -1360,7 +1362,7 @@ for key, value in groupby(a, key=lambda x: x % 2):
 
 ### 順列　permutation
 
-ABC054 C - One-stroke Path
+- ABC054 C - One-stroke Path
 
 ```python
 from itertools import permutations
