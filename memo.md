@@ -1,5 +1,124 @@
 # Memo
 
+### ランレングス圧縮
+
+ABC019B - 高橋くんと文字列圧縮 そのまま
+
+ABC136 D - Gathering Children 
+
+周期が2なのではじめ偶数番目にいた子供は最後も偶数番目にいるのがポイント
+
+連続した文字を（文字＋連続する数）で圧縮する手法
+
+例：AAAABBCCCCCCC →　A4B2C7
+
+```python
+def rle(s: str) -> str:
+    """ランレングス圧縮 RLE(Run Length Encoding)
+    例：AAABCCCC　→　A3B1C4
+    """
+    cur = s[0]
+    count = 1
+    compressed = ""
+    for i in range(1, len(s)):
+        if cur == s[i]:
+            count += 1
+        else:
+            compressed += cur+str(count)
+            cur = s[i]
+            count = 1
+    compressed += cur+str(count)
+    return compressed
+```
+
+
+
+### ワーシャルフロイド法
+
+ABC079- D - Wall
+
+全頂点間の最短距離を $O(V^3)$ で求める
+
+```python
+import sys
+from math import isinf
+from typing import List  # New in python 3.5
+
+
+def warshall_floyd(matrix: List[List]) -> List[List]:
+    """ ワーシャルフロイド
+    :param matrix:  隣接行列(到達不能はfloat("inf"))
+    :return matrix
+    """
+    # 到達不能をfloat("inf")にしておけば余計なチェックを入れなくても
+    # inf > inf+(-1) のような到達不能＋負辺が繋がってしまうことはない
+    V = len(matrix)  # 頂点数
+    for i in range(V):
+        for j, c2 in enumerate(row[i] for row in matrix):
+            for k, (c1, c3) in enumerate(zip(matrix[j], matrix[i])):
+                if c1 > c2+c3:
+                    matrix[j][k] = c2+c3  # min(c1, c2+c3)
+    return matrix
+
+
+def init_matrix(V: int) -> List[List]:
+    """:param V: 頂点数
+    """
+    return [[float('inf')]*V for _ in range(V)]
+
+
+# infで隣接行列を初期化
+matrix = init_matrix(V)
+# 隣接行列を作成
+for i in range(10):
+    c = map(int, input().split())
+    for j, cj in enumerate(c):
+        matrix[i][j] = cj
+
+# 全点間の最短距離を求める
+matrix = warshall_floyd(matrix)
+
+# 例
+matrix[0][1] # 点0から点1の最短距離
+
+```
+
+
+
+### 条件を満たす最小値を探索する
+
+ABC093C - Same Integers
+
+操作によって合計は２しか増えない→偶奇は不変。操作を積み上げる思考ではなく、最後等しくなった値がいくつになるか考える
+
+### 長い方に合わせるzip - itertools.zip_longest
+
+ABC058-B- ∵∴∵(200)
+
+```python
+a = [1, 2, 3]
+b = ["a", "b"]
+
+# 通常
+for ai,bi in zip(a, b):
+    print(ai,bi)
+# 1 a
+# 2 b
+
+
+# zip_longest
+# fillvalueを指定可能
+from itertools import zip_longest
+for ai,bi in zip_longest(a,b, fillvalue=None):
+    print(ai,bi)
+# 1 a
+# 2 b
+# 3 None
+    
+```
+
+
+
 ### 再帰の時、漸化式を前計算できそうならメモ化したらいい
 
 `functools.lru_cache`で再帰関数に`@lru_cache`デコレータをつけるだけ！ただし普通のループで計算できる漸化式などはループで書いたらいい。
