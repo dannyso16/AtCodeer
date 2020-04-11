@@ -1010,6 +1010,22 @@ sys.setrecursionlimit(1_000_000)
 ### 便利な関数たち
 
 ```python
+# 累乗、階乗
+from math import factorial
+f = factorial(5)
+
+
+# 商とあまりを同時に取得
+d, m = divmod(a, b)
+d, m = a//b, a % b
+
+# 距離の計算など平方和のルート
+from math import sqrt
+from math import hypot
+ax,ay = 1, 2
+bx,by = 4, 5
+distance = hypot(ax-bx, ay-by)
+distance = sqrt((ax-bx)**2 + (ay-by)**2)
 
 ```
 
