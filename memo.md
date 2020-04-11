@@ -1,6 +1,22 @@
-# Memo
+# 目次
 
-### 深さ優先探索
+- 探索
+- グラフ
+- データ構造
+- 動的計画法
+- 文字列
+- 数学
+- 貪欲
+- テクニック
+- 構築
+- ゲーム
+- フロー
+
+米AtCoder tags 参考
+
+# 探索
+
+## 深さ優先探索
 
 パスを全列挙する→dfs呼び出し後探索済みをfalseにする
 
@@ -38,40 +54,210 @@ def main():
 
 
 
-### ランレングス圧縮
+## 幅優先探索
 
-- ABC019B - 高橋くんと文字列圧縮 そのまま
-
-- ABC136 D - Gathering Children 
-
-周期が2なのではじめ偶数番目にいた子供は最後も偶数番目にいるのがポイント
-
-連続した文字を（文字＋連続する数）で圧縮する手法
-
-例：AAAABBCCCCCCC →　A4B2C7
+- ABC146: 方針はたつが実装が難しい典型問題
 
 ```python
-def rle(s: str) -> str:
-    """ランレングス圧縮 RLE(Run Length Encoding)
-    例：AAABCCCC　→　A3B1C4
-    """
-    cur = s[0]
-    count = 1
-    compressed = ""
-    for i in range(1, len(s)):
-        if cur == s[i]:
-            count += 1
-        else:
-            compressed += cur+str(count)
-            cur = s[i]
-            count = 1
-    compressed += cur+str(count)
-    return compressed
+from collections import deque
+
+N = int(input())
+
+# 辺情報
+edges = [[] for _ in range(N)]
+ab = [tuple(map(lambda x: int(x)-1, input().split())) for _ in range(N-1)]
+for a, b in ab:
+    edges[a].append(b)
+    edges[b].append(a)
+
+root = 0 # 探索の始点
+
+visited = [False]*N
+visited[root] = True
+
+# 以下BFS
+stack = deque()  # (vertex, ●●)
+
+while stack:
+    v, hoge = stack.pop()
+    for to in edges[v]: 
+        assert 条件, "エラーしがちなので"
+        if visited[to]:
+            continue
+        visited[to] = True
+        # 行き先の頂点での処理
+        stack.append((to, hogehoge))
+
 ```
 
 
 
-### ワーシャルフロイド法
+## 二部探索：bisect
+
+- ソート状態を保ったまま要素を挿入できたりする
+- 条件を満たす最小値を探索する
+
+ソート済みのリストに挿入
+
+```python
+import bisect
+
+l = [1, 3, 4]
+a = 2
+idx = bisect.bisect(l, a) # 挿入するindexを取得
+bisect.insort(l, a)       # 挿入
+# l: [1, 2, 3, 4]
+```
+
+同じ要素があるときに右か左かも指定できる
+
+```python
+import bisect
+
+idx_r = bisect.bisect_right(l, a) # bisect.bisectと同じ
+idx_l = bisect.bisect_left(l, a)
+
+bisect.insort_right(l, a) # insort()と同じ
+bisect.insort_left(l, a)
+```
+
+
+
+### じぶんで実装
+
+平均の最大化→答え（目標）を決めてしまう。つまり「平均の最大値を求める」と考えず、「つくれる最大の閾値を求める」と考える
+
+- ABC034
+
+```python
+def check(m: int) -> bool:
+    """m 以上で条件を満たすかどうか
+    mで条件を満たす → return True
+    """
+    # なんか
+    return bool
+
+
+high = 100 # 必ず条件を満たす
+low = 0    # 必ず条件を満たさない
+while high - low > 1e-6:
+    mid = (high + low) / 2
+    if check(mid):
+        low = mid
+    else:
+        high = mid
+print(low)
+
+```
+
+## 
+
+### 近い発想の問題
+
+- ABC093 C - Same Integers
+
+操作によって合計は２しか増えない→偶奇は不変。操作を積み上げる思考ではなく、最後等しくなった値がいくつになるか考える
+
+
+
+## しゃくとり法
+
+- ABC032
+- ABC038
+- ABC154
+
+```python
+s = list(map(int, input().split()))
+
+#  [left, right)で考えることに注意!
+right = 0
+for left in range(N):
+    while (right < N) and (right をひとつ進めても条件を満たす ex. sum_+s[right] <= K):
+        # right ++ の処理
+        sum_ += s[right]
+        right += 1
+
+    # この時点でright は条件を満たす最大値 [left, right)
+    # ans の更新とかする
+
+    # left++ する準備
+    if right == left:
+        right += 1
+    else:
+        sum_ -= s[left]
+
+```
+
+
+
+## 三部探索
+
+- 二部探索：bool値の変わる境界を探す
+- 三部探索：凸関数の極値を探す
+
+三部探索で整数解を求めたいときは，
+
+```python
+def f(x:float)->int:
+    x = int(x+0.5) # round
+```
+
+のようにfloatで受けて，intにするといい．
+答えは誤差を考慮して，前後の値も候補に入れておくと安心
+
+```python
+def tri_search(f: "f(x:float)->float", left: float, right: float,
+               is_convex_downward=True, iter=100) -> float:
+    """is_convex_downward: 下に凸 return minimum
+    else: 上に凸 return Maximum
+    f: convex upward -> -f: convex downward
+    """
+    for _ in range(iter):
+        ml = (left*2 + right) / 3
+        mr = (left + right*2) / 3
+        if is_convex_downward:
+            f_ml, f_mr = f(ml), f(mr)
+        else:
+            f_ml, f_mr = -f(ml), -f(mr)
+
+        if f_ml < f_mr:
+            right = mr
+        else:
+            left = ml
+    print(left, right)
+    return (right + left) / 2
+```
+
+
+
+## Counterで数を数えて最頻値を昇順に出力
+
+- ABC155
+
+```python
+from collections import Counter
+ 
+N = int(input())
+s = ['a', 'z', 'z', 'b', 'b']
+ 
+c = Counter(s)
+c = c.most_common() # これでリストになる
+				  # [('a', 1), ('z', 2), ('b', 2)]
+c.sort(key=lambda x: x[0])  # [('a', 1), ('b', 2), ('z', 2)]
+c.sort(key=lambda x: x[1], reverse=True) # 出現回数順
+ 
+most_cnt = c[0][1]
+for key, cnt in c:
+    if cnt == most_cnt:
+        print(key)
+    else:
+```
+
+
+
+# グラフ
+
+## ワーシャルフロイド法
 
 - ABC079- D - Wall  やや応用
 
@@ -121,192 +307,14 @@ matrix[0][1] # 点0から点1の最短距離
 
 ```
 
+## ある始点から各頂点への最短経路をだす（ダイクストラ）
 
+$頂点数 < 10^3, 辺数 < 10^3$ なら、全点間最短距離を出せる（$O(N^2)$程度）
 
-### 条件を満たす最小値を探索する
+- ABC160: 制約が$頂点数 < 10^3$ならまず2重ループから考えてもいい
+  - 近道があるなら近道を使う時と使わないときを考えて、minをとったり
 
-- ABC093 C - Same Integers
-
-操作によって合計は２しか増えない→偶奇は不変。操作を積み上げる思考ではなく、最後等しくなった値がいくつになるか考える
-
-### 長い方に合わせるzip - itertools.zip_longest
-
-- ABC058-B- ∵∴∵(200)
-
-```python
-a = [1, 2, 3]
-b = ["a", "b"]
-
-# 通常
-for ai,bi in zip(a, b):
-    print(ai,bi)
-# 1 a
-# 2 b
-
-
-# zip_longest
-# fillvalueを指定可能
-from itertools import zip_longest
-for ai,bi in zip_longest(a,b, fillvalue=None):
-    print(ai,bi)
-# 1 a
-# 2 b
-# 3 None
-    
-```
-
-
-
-### 再帰の時、漸化式を前計算できそうならメモ化したらいい
-
-`functools.lru_cache`で再帰関数に`@lru_cache`デコレータをつけるだけ！ただし普通のループで計算できる漸化式などはループで書いたらいい。
-
-```python
-from functools import lru_cache
-
-# max_size: 128 (default)
-# 2 の累乗であるときが最も効率的に動作
-# noneを指定するとキャッシュは際限なく大きくなる
-@lru_cache(maxsize=None)
-def fib(n):
-    if n < 2:
-        return n
-    return fib(n-1) + fib(n-2)
-
-
-print([fib(n) for n in range(16)])
-# [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
-
-print(fib.cache_info())
-# CacheInfo(hits=28, misses=16, maxsize=None, currsize=16)
-
-```
-
-
-
-
-
-### f文字列(python3.6～)
-
-`.format`なしで簡潔にかけるよ。
-
-```python
-x = 1
-print(f"x={x}")    # x=1
-print(f"x={x:04}") # x=0001 ゼロ埋め
-
-y = 0.1234
-print(f"y={y:.2f}") # y=0.12 桁指定
-```
-
-
-
-### 漸化式の前計算
-
-$a_0=1, a_i = 2a_{i-1} + 3$ の計算結果を保持したいとき
-
-```python
-a = [1]   # a_0
-for i in range(100):  # a_100まで計算
-    a.append(2*a[-1] + 3)
-```
-
-
-
-
-
-### 10進数の一番下の桁で条件分岐したり桁を増やしたり
-
-10進数は10倍、10で割るでシフトできる
-
-```python
-k = 12345678
-k1 = k%10         # 1の位は10で割ったあまり
-
-kk = 10*k + k%10  # 1の位を追加して左にシフト
-```
-
-
-
-### 再帰上限の引き上げ
-
-```python
-import sys
-sys.setrecursionlimit(1_000_000)
-```
-
-
-
-### 優先度付きキュー（Priority queue）:heapq
-
-- 最小値（最大値）を `O(logN)`で取り出す
-- 要素を `O(logN)`で挿入する
-
-通常は`O(N)`かかるから早い。注意点としてはデータは常にソートされた状態で保持されているわけではない。
-
-```python
-import heapq 
-
-a = [1, 6, 8, 0, -1]
-heapq.heapify(a)  # リストを優先度付きキューに変換
-
-_min = heapq.heappop(a)  # 最小値の取り出し
-
-heapq.heappush(a, -2)  # 要素の挿入
-```
-
--1をかけておけば最大値も取り出せる
-
-```python
-import heapq
-
-a = [1, 6, 8, 0, -1]
-a = list(map(lambda x: x*(-1), a))  # 各要素を-1倍
-
-heapq.heapify(a)
-_max = heapq.heappop(a)*(-1)  # 最大値の取り出し
-
-heapq.heappush(a, -1*(-2)) # 要素の挿入
-```
-
-### 二部探索：bisect
-
-ソート状態を保ったまま要素を挿入できたりする
-
-ソート済みのリストに挿入
-
-```python
-import bisect
-
-l = [1, 3, 4]
-a = 2
-idx = bisect.bisect(l, a) # 挿入するindexを取得
-bisect.insort(l, a)       # 挿入
-# l: [1, 2, 3, 4]
-```
-
-同じ要素があるときに右か左かも指定できる
-
-```python
-import bisect
-
-idx_r = bisect.bisect_right(l, a) # bisect.bisectと同じ
-idx_l = bisect.bisect_left(l, a)
-
-bisect.insort_right(l, a) # insort()と同じ
-bisect.insort_left(l, a)
-```
-
-
-
-## ABC160
-
-- $頂点数 < 10^3, 辺数 < 10^3$ なら、全点間最短距離を出せる（$O(N^2)$程度）
-- 制約が$頂点数 < 10^3$ならまず2重ループから考えてもいい
-- 近道がある
-  - 近道を使う時と使わないときを考えて、minをとったり
-
-### ある始点から各頂点への最短経路をだす（ダイクストラ）
+### 
 
 ```python
 from collections import deque
@@ -344,7 +352,9 @@ if __name__ == "__main__":
         d = dijkstra(i, edges)
 ```
 
-### 最短経路を復元（ダイクストラ）
+
+
+## 最短経路を復元（ダイクストラ）
 
 ```python
 from collections import deque
@@ -393,61 +403,11 @@ if __name__ == "__main__":
 
 
 
-## ABC159
+# データ構造
 
-### 回文判定
+## collections.deque
 
-```python
-S: str = input()
-if S == S[::-1]:
-    print("回文")
-else:
-    print("回文でない")
-```
-
-### リスト各要素のカウント →collections.Counter
-
-```python
-from collections import Counter
-
-l = ['a', 'a', 'a', 'a', 'b', 'c', 'c']
-cnts = Counter(l)
-
-# dictのように使える
-cnts.items()
-cnts.keys()
-cnts.values()
-cnts['a']
-
-# 出現回数順
-cnts.most_common() # [('a', 4), ('c', 2), ('b', 1)]
-
-```
-
-### 行列の転置
-
-```python
-mat = [[0, 1, 2], 
-       [3, 4, 5]]
-matT_tuple = list(zip(*mat))
-# [(0, 3), 
-#  (1, 4), 
-#  (2, 5)]
-
-matT_list = [list(x) for x in zip(*mat)]
-# [[0, 3], 
-#  [1, 4], 
-#  [2, 5]]
-```
-
-E:
-実装が難しそう…[例](http://kmjp.hatenablog.jp/entry/2020/03/22/0900)
-
-
-
-## ABC158
-
-### collections.deque
+- ABC158
 
 先頭や末尾にデータを挿入したい場合はこれ。listだと先頭への挿入が遅いので。なお、`deque`には、両端以外の要素へのアクセスが遅いというデメリットもあるので注意。QueueもStackもこれでいい。
 
@@ -478,9 +438,98 @@ d = deque("string")
 
 
 
-## ABC087
 
-### 重み付きUnion Find
+
+## 優先度付きキュー（Priority queue）:heapq
+
+- 最小値（最大値）を `O(logN)`で取り出す
+- 要素を `O(logN)`で挿入する
+
+通常は`O(N)`かかるから早い。注意点としてはデータは常にソートされた状態で保持されているわけではない。
+
+```python
+import heapq 
+
+a = [1, 6, 8, 0, -1]
+heapq.heapify(a)  # リストを優先度付きキューに変換
+
+_min = heapq.heappop(a)  # 最小値の取り出し
+
+heapq.heappush(a, -2)  # 要素の挿入
+```
+
+-1をかけておけば最大値も取り出せる
+
+```python
+import heapq
+
+a = [1, 6, 8, 0, -1]
+a = list(map(lambda x: x*(-1), a))  # 各要素を-1倍
+
+heapq.heapify(a)
+_max = heapq.heappop(a)*(-1)  # 最大値の取り出し
+
+heapq.heappush(a, -1*(-2)) # 要素の挿入
+```
+
+## 
+
+## 重みなしDisjoint set (Union Find)
+
+- ARC032
+
+```python
+import sys
+
+
+class UnionFind:
+    def __init__(self, N: int):
+        """N: 大きさ
+        size: 連結成分の大きさ
+        """
+        self.par = [i for i in range(N)]
+        self.size = [1]*N
+        self.rank = [1]*N
+
+    def root(self, x: int) -> int:
+        """根を求める"""
+        if self.par[x] == x:  # if root
+            return x
+        else:
+            self.par[x] = self.root(self.par[x])  # 経路圧縮
+            return self.par[x]
+
+    def is_same(self, x: int, y: int) -> bool:
+        """x と y が同じ集合に属するか否か"""
+        return self.root(x) == self.root(y)
+
+    def unite(self, x: int, y: int):
+        """y を x の属する集合に併合"""
+        root_x = self.root(x)
+        root_y = self.root(y)
+        if root_x == root_y:
+            return
+        if self.rank[root_x] == self.rank[root_y]:
+            self.rank[root_x] += 1
+        elif self.rank[root_x] < self.rank[root_y]:
+            root_x, root_y = root_y, root_x
+        # 短いほう(y)を長いほう(x)にくっつける
+        self.par[root_y] = root_x
+        self.size[root_x] += self.size[root_y]
+        self.size[root_y] = 0  # もういらない
+
+    def get_size(self, x: int) -> int:
+        """xの属するグループのサイズ"""
+        return self.size[self.root(x)]
+```
+
+連結成分の数はrootが自分のものの数 `sum([i == uf.root(i) for i in range(N)])`
+
+## 
+
+## 重み付きUnion Find
+
+- ABC087
 
 普通の UnionFind 木のサポートする処理は
 
@@ -566,149 +615,119 @@ class WeightedUnionFind:
 
 
 
-## ABC156
+# 動的計画法
 
-### 切り上げ
+## 桁DP
 
-```python
-from math import ceil
+- ABC155
 
-ceil(0.5)
-ceil(a / b)
-(a+b-1) / b
-
-```
-
-### 四捨五入(a / b)
-
-```python
-int(x+0.5) # round
-(a + (b / 2)) / b
-```
-
-### modありの組み合わせの数を高速に計算
-
-```python
-MOD = 10**9 + 7
-# mod計算を含めて大きな数でもできるようにしたもの
-def comb_fermat(n: int, r: int) -> int:
-    """mod MOD を法とした組み合わせの数
-    フェルマー小定理を利用: O(r)
-    a^(-1) ≡ a^(p-2) (mod p), p : 素数
-    割り算を逆元の掛け算に変形できる
-    return nCr (mod MOD)	
-    """
-    if r > n:
-        return 0
-    if r > n-r:
-        return comb_fermat(n, n-r)
-    mul, div = 1, 1
-    for i in range(r):
-        mul *= n-i
-        mul %= MOD
-        div *= i+1
-        div %= MOD
-
-    ret = mul * pow(div, MOD-2, MOD) % MOD
-    return ret
-```
-
-### 繰り返し二乗法
-
-pythonだと`pow(a, b, M)`で高速に $a^b \ mod \ M$ が計算できるが、下に実装例も載せておく
-
-```python
-MOD = 10**9 + 7
-
-def modpow(a: int, p: int, mod: int) -> int:
-    # return a**p (mod MOD) O(log p)
-    if p == 0:
-        return 1
-    if p % 2 == 0:
-        half = modpow(a, p//2, mod)
-        return half*half % mod
-    else:
-        return a * modpow(a, p-1, mod) % mod
-```
-
-
-
-## ABC155
-
-### Counterで数を数えて最頻値を昇順に出力
-
-```python
-from collections import Counter
- 
-N = int(input())
-s = ['a', 'z', 'z', 'b', 'b']
- 
-c = Counter(s)
-c = c.most_common() # これでリストになる
-				  # [('a', 1), ('z', 2), ('b', 2)]
-c.sort(key=lambda x: x[0])  # [('a', 1), ('b', 2), ('z', 2)]
-c.sort(key=lambda x: x[1], reverse=True) # 出現回数順
- 
-most_cnt = c[0][1]
-for key, cnt in c:
-    if cnt == most_cnt:
-        print(key)
-    else:
-```
-
-
-
-### 桁DP
-
-### bitDP
+## bitDP
 
 bitDP は「ある集合の部分集合を添字とした DP」。順列を全探索したりできる $O(M2^N)$
 
 - [ABC 142 E - Get Everything (500 点)](https://drken1215.hatenablog.com/entry/2019/09/29/103500)
 
-## ABC146
+# 文字列
 
-実装方針がたつが、実装が難しい典型…
+## ランレングス圧縮
 
-### 幅優先探索
+- ABC019B - 高橋くんと文字列圧縮 そのまま
+
+- ABC136 D - Gathering Children 
+
+周期が2なのではじめ偶数番目にいた子供は最後も偶数番目にいるのがポイント
+
+連続した文字を（文字＋連続する数）で圧縮する手法
+
+例：AAAABBCCCCCCC →　A4B2C7
 
 ```python
-from collections import deque
+def rle(s: str) -> str:
+    """ランレングス圧縮 RLE(Run Length Encoding)
+    例：AAABCCCC　→　A3B1C4
+    """
+    cur = s[0]
+    count = 1
+    compressed = ""
+    for i in range(1, len(s)):
+        if cur == s[i]:
+            count += 1
+        else:
+            compressed += cur+str(count)
+            cur = s[i]
+            count = 1
+    compressed += cur+str(count)
+    return compressed
+```
 
-N = int(input())
+## f文字列(python3.6～)
 
-# 辺情報
-edges = [[] for _ in range(N)]
-ab = [tuple(map(lambda x: int(x)-1, input().split())) for _ in range(N-1)]
-for a, b in ab:
-    edges[a].append(b)
-    edges[b].append(a)
+`.format`なしで簡潔にかけるよ。
 
-root = 0 # 探索の始点
+```python
+x = 1
+print(f"x={x}")    # x=1
+print(f"x={x:04}") # x=0001 ゼロ埋め
 
-visited = [False]*N
-visited[root] = True
+y = 0.1234
+print(f"y={y:.2f}") # y=0.12 桁指定
+```
 
-# 以下BFS
-stack = deque()  # (vertex, ●●)
+## 回文判定
 
-while stack:
-    v, hoge = stack.pop()
-    for to in edges[v]: 
-        assert 条件, "エラーしがちなので"
-        if visited[to]:
-            continue
-        visited[to] = True
-        # 行き先の頂点での処理
-        stack.append((to, hogehoge))
+- ABC159
 
+```python
+S: str = input()
+if S == S[::-1]:
+    print("回文")
+else:
+    print("回文でない")
+```
+
+## 大文字や小文字にそろえる
+
+```python
+s = "abcAA"
+s.upper()
+s.lower()
+```
+
+## stringモジュールの文字列定数
+
+小文字や大文字などの一覧が取れる
+
+```python
+print(string.ascii_lowercase)
+# abcdefghijklmnopqrstuvwxyz
+
+print(string.ascii_uppercase)
+# ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+print(string.ascii_letters)
+# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+print(string.digits)
+# 0123456789
+
+print(string.hexdigits)
+# 0123456789abcdefABCDEF
+```
+
+## 文字とasciiの変換
+
+```python
+ord("a")  # 97
+chr("97") # 'a'
 ```
 
 
 
-## ABC142
+# 数学
 
-### 素因数分解
+## 素因数分解
+
+- ABC142
 
 ```python
 def factorize(a:int)->dict:
@@ -731,134 +750,9 @@ def factorize(a:int)->dict:
     return ps
 ```
 
-
-
-## ABC034
-
-平均の最大化→答え（目標）を決めてしまう。つまり「平均の最大値を求める」と考えず、「つくれる最大の閾値を求める」と考える
-
-### 二部探索
+## 素数列挙　エラトステネスのふるい
 
 ```python
-def check(m: int) -> bool:
-    """m 以上で条件を満たすかどうか
-    mで条件を満たす → return True
-    """
-    # なんか
-    return bool
-
-
-high = 100 # 必ず条件を満たす
-low = 0    # 必ず条件を満たさない
-while high - low > 1e-6:
-    mid = (high + low) / 2
-    if check(mid):
-        low = mid
-    else:
-        high = mid
-print(low)
-
-```
-
-## ABC032
-
-### しゃくとり法
-
-- ABC032
-- ABC038
-- ABC154
-
-```python
-s = list(map(int, input().split()))
-
-#  [left, right)で考えることに注意!
-right = 0
-for left in range(N):
-    while (right < N) and (right をひとつ進めても条件を満たす ex. sum_+s[right] <= K):
-        # right ++ の処理
-        sum_ += s[right]
-        right += 1
-
-    # この時点でright は条件を満たす最大値 [left, right)
-    # ans の更新とかする
-
-    # left++ する準備
-    if right == left:
-        right += 1
-    else:
-        sum_ -= s[left]
-
-```
-
-
-
-
-
-## ARC32
-
-### 重みなしDisjoint set (Union Find)
-
-```python
-import sys
-
-
-class UnionFind:
-    def __init__(self, N: int):
-        """N: 大きさ
-        size: 連結成分の大きさ
-        """
-        self.par = [i for i in range(N)]
-        self.size = [1]*N
-        self.rank = [1]*N
-
-    def root(self, x: int) -> int:
-        """根を求める"""
-        if self.par[x] == x:  # if root
-            return x
-        else:
-            self.par[x] = self.root(self.par[x])  # 経路圧縮
-            return self.par[x]
-
-    def is_same(self, x: int, y: int) -> bool:
-        """x と y が同じ集合に属するか否か"""
-        return self.root(x) == self.root(y)
-
-    def unite(self, x: int, y: int):
-        """y を x の属する集合に併合"""
-        root_x = self.root(x)
-        root_y = self.root(y)
-        if root_x == root_y:
-            return
-        if self.rank[root_x] == self.rank[root_y]:
-            self.rank[root_x] += 1
-        elif self.rank[root_x] < self.rank[root_y]:
-            root_x, root_y = root_y, root_x
-        # 短いほう(y)を長いほう(x)にくっつける
-        self.par[root_y] = root_x
-        self.size[root_x] += self.size[root_y]
-        self.size[root_y] = 0  # もういらない
-
-    def get_size(self, x: int) -> int:
-        """xの属するグループのサイズ"""
-        return self.size[self.root(x)]
-```
-
-連結成分の数はrootが自分のものの数 `sum([i == uf.root(i) for i in range(N)])`
-
-# ライブラリ
-
-## 素数関係
-
-```python
-"""
-素因数分解に関係するものたち
-- エラトステネスの篩 O(N loglog N)
-  --sieve(n:int)->list
-
-- 素因数分解 O(sqrt(N))
-  --factorize(a:int)->dict
-"""
-
 def sieve(n:int)->list:
     """エラトステネスの篩 O(N loglog N)
     return 区間 (0, n] で素数かどうかのbool
@@ -876,9 +770,7 @@ def sieve(n:int)->list:
 
 ```
 
-
-
-## 組み合わせ関係
+## 組み合わせ
 
 ```python
 # nCr = n*(n-1)*...*(n-r+1) / r*(r-1)*...*1
@@ -895,6 +787,33 @@ def comb_naive(n: int, r: int) -> int:
     return ret % MOD
 
 
+### 
+# 2. modありの組み合わせの数を高速に計算
+MOD = 10**9 + 7
+# mod計算を含めて大きな数でもできるようにしたもの
+def comb_fermat(n: int, r: int) -> int:
+    """mod MOD を法とした組み合わせの数
+    フェルマー小定理を利用: O(r)
+    a^(-1) ≡ a^(p-2) (mod p), p : 素数
+    割り算を逆元の掛け算に変形できる
+    return nCr (mod MOD)	
+    """
+    if r > n:
+        return 0
+    if r > n-r:
+        return comb_fermat(n, n-r)
+    mul, div = 1, 1
+    for i in range(r):
+        mul *= n-i
+        mul %= MOD
+        div *= i+1
+        div %= MOD
+
+    ret = mul * pow(div, MOD-2, MOD) % MOD
+    return ret
+
+
+### 
 # 3. 動的計画法でパスカル三角形を使う
 com = [[0]*2000 for _ in range(2000)] # com[2000][2000]
 com[0][0] = 1
@@ -943,7 +862,27 @@ def comb(n: int, r: int) -> int:
 
 
 
-## 繰り返し二乗法
+## くり返し二乗法
+
+pythonだと`pow(a, b, M)`で高速に $a^b \ mod \ M$ が計算できるが、下に実装例も載せておく
+
+- ABC156
+
+```python
+MOD = 10**9 + 7
+
+def modpow(a: int, p: int, mod: int) -> int:
+    # return a**p (mod MOD) O(log p)
+    if p == 0:
+        return 1
+    if p % 2 == 0:
+        half = modpow(a, p//2, mod)
+        return half*half % mod
+    else:
+        return a * modpow(a, p-1, mod) % mod
+```
+
+以下もくりかえし二乗法だが文字化け・・・
 
 ```python
 # a^p (mod MOD) 繧帝ｫ倬溘↓豎ゅａ繧区婿?�ｿｽ�ｿｽ?
@@ -1014,73 +953,122 @@ if __name__ == '__main__':
 
 ```
 
-## 三部探索
 
-- 二部探索：bool値の変わる境界を探す
-- 三部探索：凸関数の極値を探す
 
-三部探索で整数解を求めたいときは，
+## 再帰のメモ化
 
-```python
-def f(x:float)->int:
-    x = int(x+0.5) # round
-```
-
-のようにfloatで受けて，intにするといい．
-答えは誤差を考慮して，前後の値も候補に入れておくと安心
+`functools.lru_cache`で再帰関数に`@lru_cache`デコレータをつけるだけ！ただし普通のループで計算できる漸化式などはループで書いたらいい。
 
 ```python
-def tri_search(f: "f(x:float)->float", left: float, right: float,
-               is_convex_downward=True, iter=100) -> float:
-    """is_convex_downward: 下に凸 return minimum
-    else: 上に凸 return Maximum
-    f: convex upward -> -f: convex downward
-    """
-    for _ in range(iter):
-        ml = (left*2 + right) / 3
-        mr = (left + right*2) / 3
-        if is_convex_downward:
-            f_ml, f_mr = f(ml), f(mr)
-        else:
-            f_ml, f_mr = -f(ml), -f(mr)
+from functools import lru_cache
 
-        if f_ml < f_mr:
-            right = mr
-        else:
-            left = ml
-    print(left, right)
-    return (right + left) / 2
+# max_size: 128 (default)
+# 2 の累乗であるときが最も効率的に動作
+# noneを指定するとキャッシュは際限なく大きくなる
+@lru_cache(maxsize=None)
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n-1) + fib(n-2)
+
+
+print([fib(n) for n in range(16)])
+# [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+
+print(fib.cache_info())
+# CacheInfo(hits=28, misses=16, maxsize=None, currsize=16)
+
 ```
 
-# python vs pypy
 
-基本的にpypyのが明らかに早い
 
-ただし `+=` のような文字列結合に弱い。**pypyでは`string.join('a')`を使用する。**
+## 漸化式の前計算
 
-あと**再帰が弱い**。遅いし上限も小さい
+$a_0=1, a_i = 2a_{i-1} + 3$ の計算結果を保持したいとき
+
+```python
+a = [1]   # a_0
+for i in range(100):  # a_100まで計算
+    a.append(2*a[-1] + 3)
+```
+
+
+
+
+
+## 再帰上限の引き上げ
 
 ```python
 import sys
-sys.setrecursionlimit(10**7)
-
-def dp(N) :
-    if N == 0 :
-        return 0
-    else :
-        return 1 + dp(N - 1)
-
-print(dp(600000))
+sys.setrecursionlimit(1_000_000)
 ```
 
-|          | Python  | PyPy    |
-| :------- | :------ | ------- |
-| **最高** | 915 ms  | 2680 ms |
-| **最低** | 1270 ms | 2705 ms |
+
+
+## その他小さなtips
+
+### 便利な関数たち
+
+```python
+
+```
 
 
 
-# テクニックなど
+### 切り上げ
+
+```python
+from math import ceil
+
+ceil(0.5)
+ceil(a / b)
+(a+b-1) / b
+
+```
+
+
+
+### 四捨五入(a / b)
+
+```python
+int(x+0.5) # round
+(a + (b / 2)) / b
+```
+
+
+
+### 10進数の一番下の桁で条件分岐したり桁を増やしたり
+
+10進数は10倍、10で割るでシフトできる
+
+```python
+k = 12345678
+k1 = k%10         # 1の位は10で割ったあまり
+
+kk = 10*k + k%10  # 1の位を追加して左にシフト
+```
+
+
+
+# 貪欲
+
+# テクニック
+
+# 構築
+
+# ゲーム
+
+# フロー
+
+
+
+
+
+
+
+
+
+# 文法など
 
 ## 入力関係
 
@@ -1126,6 +1114,34 @@ flushする
 ```python
 print("hello", flush=True)
 ```
+
+
+
+## python vs pypy
+
+基本的にpypyのが明らかに早い
+
+ただし `+=` のような文字列結合に弱い。**pypyでは`string.join('a')`を使用する。**
+
+あと**再帰が弱い**。遅いし上限も小さい
+
+```python
+import sys
+sys.setrecursionlimit(10**7)
+
+def dp(N) :
+    if N == 0 :
+        return 0
+    else :
+        return 1 + dp(N - 1)
+
+print(dp(600000))
+```
+
+|          | Python  | PyPy    |
+| :------- | :------ | ------- |
+| **最高** | 915 ms  | 2680 ms |
+| **最低** | 1270 ms | 2705 ms |
 
 
 
@@ -1255,49 +1271,44 @@ if all(a):
     実行されない
 ```
 
+### 行列の転置
 
-
-
-
-## 文字列
-
-### 大文字や小文字にそろえる
+- ABC159
 
 ```python
-s = "abcAA"
-s.upper()
-s.lower()
+mat = [[0, 1, 2], 
+       [3, 4, 5]]
+matT_tuple = list(zip(*mat))
+# [(0, 3), 
+#  (1, 4), 
+#  (2, 5)]
+
+matT_list = [list(x) for x in zip(*mat)]
+# [[0, 3], 
+#  [1, 4], 
+#  [2, 5]]
 ```
 
-### stringモジュールの文字列定数
+### リスト各要素のカウント →collections.Counter
 
-小文字や大文字などの一覧が取れる
+- ABC159
 
 ```python
-print(string.ascii_lowercase)
-# abcdefghijklmnopqrstuvwxyz
+from collections import Counter
 
-print(string.ascii_uppercase)
-# ABCDEFGHIJKLMNOPQRSTUVWXYZ
+l = ['a', 'a', 'a', 'a', 'b', 'c', 'c']
+cnts = Counter(l)
 
-print(string.ascii_letters)
-# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+# dictのように使える
+cnts.items()
+cnts.keys()
+cnts.values()
+cnts['a']
 
-print(string.digits)
-# 0123456789
+# 出現回数順
+cnts.most_common() # [('a', 4), ('c', 2), ('b', 1)]
 
-print(string.hexdigits)
-# 0123456789abcdefABCDEF
 ```
-
-### 文字とasciiの変換
-
-```python
-ord("a")  # 97
-chr("97") # 'a'
-```
-
-
 
 
 
@@ -1371,7 +1382,30 @@ print(*permutations(range(3)))     # 3!　通り
 print(*permutations(range(3), 2))  # 3P2
 ```
 
+### 長い方に合わせるzip - itertools.zip_longest
 
+- ABC058-B- ∵∴∵(200)
+
+```python
+a = [1, 2, 3]
+b = ["a", "b"]
+
+# 通常
+for ai,bi in zip(a, b):
+    print(ai,bi)
+# 1 a
+# 2 b
+
+
+# zip_longest
+# fillvalueを指定可能
+from itertools import zip_longest
+for ai,bi in zip_longest(a,b, fillvalue=None):
+    print(ai,bi)
+# 1 a
+# 2 b
+# 3 None
+```
 
 # 参考
 
