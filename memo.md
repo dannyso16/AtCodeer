@@ -14,9 +14,13 @@
 
 米AtCoder tags 参考
 
+## 便利なサイト
+
+[GPATH x xGPATH](https://hello-world-494ec.firebaseapp.com/): グラフを描画してくれる！
+
 # 探索
 
-## 深さ優先探索
+## 深さ優先探索　再帰
 
 パスを全列挙する→dfs呼び出し後探索済みをfalseにする
 
@@ -54,39 +58,68 @@ def main():
 
 
 
-## 幅優先探索
+## DFS　stack
 
-- ABC146: 方針はたつが実装が難しい典型問題
+全頂点を探索したりする。再帰よりはやい
+
+- ABC138 D - Ki(400)
 
 ```python
 from collections import deque
 
-N = int(input())
-
-# 辺情報
+N, Q = map(int, input().split())
 edges = [[] for _ in range(N)]
-ab = [tuple(map(lambda x: int(x)-1, input().split())) for _ in range(N-1)]
-for a, b in ab:
+for _ in range(N-1):
+    a, b = map(lambda x: int(x)-1, input().split())
     edges[a].append(b)
     edges[b].append(a)
 
-root = 0 # 探索の始点
-
 visited = [False]*N
-visited[root] = True
-
-# 以下BFS
-stack = deque()  # (vertex, ●●)
-
-while stack:
-    v, hoge = stack.pop()
-    for to in edges[v]: 
-        assert 条件, "エラーしがちなので"
-        if visited[to]:
+visited[0] = True
+q = deque([0])
+while q:
+    v = q.pop()
+    for n in edges[v]:
+        if visited[n]:
             continue
-        visited[to] = True
-        # 行き先の頂点での処理
-        stack.append((to, hogehoge))
+        visited[n] = True
+        
+        # ナンカスル
+        
+        q.append(n)
+
+```
+
+
+
+## 幅優先探索　BFS
+
+- ABC146: 方針はたつが実装が難しい典型問題
+- ABC067 D - Fennec VS. Snuke(400)
+
+```python
+from collections import deque
+
+def bfs(edges, s)->list:
+    """edges: 隣接リスト
+    """
+    V = len(edges)
+    dist = [float('inf')]*V
+    visited = [False]*V
+    dist[s] = 0
+    visited[s] = True
+    q = deque([s])
+    while q:
+        cur = q.popleft()
+        for nex in edges[cur]:
+            if visited[nex]:
+                continue
+            q.append(nex)
+            visited[nex] = True
+            dist[nex] = dist[cur] + 1
+    return dist
+ 
+dist1 = bfs(edges, 0)
 
 ```
 
@@ -164,7 +197,7 @@ print(low)
 
 - ABC032
 - ABC038
-- ABC154
+- ABC154 D - Dice in Line(400)
 
 ```python
 s = list(map(int, input().split()))
@@ -255,7 +288,55 @@ for key, cnt in c:
 
 
 
+## いもす法（累積和）
+
+- ABC138 D - Ki(400) : 応用
+
+```python
+# 自分でかく
+a = list(range(10))
+accum = [a[0]]
+for ai in a[1:]:
+    accum.append(accum[-1] + ai)
+
+    
+# itertools.accumlate
+from itertools import accumulate
+
+a = range(10)
+accum = list(accumulate(a))
+```
+
+
+
 # グラフ
+
+## 隣接行列
+
+```python
+# infで隣接行列を初期化
+matrix = [[float('inf')]*V for _ in range(V)]
+
+# 隣接行列を作成
+for i in range(10):
+    c = map(int, input().split())
+    for j, cj in enumerate(c):
+        matrix[i][j] = cj
+```
+
+
+
+## 隣接リスト
+
+```python
+edges = [[] for _ in range(N)]
+for _ in range(N-1):
+    s,t = map(lambda x:int(x)-1, readline().split())
+    edges[s].append(t)
+    edges[t].append(s)
+```
+
+
 
 ## ワーシャルフロイド法
 
@@ -285,14 +366,8 @@ def warshall_floyd(matrix: List[List]) -> List[List]:
     return matrix
 
 
-def init_matrix(V: int) -> List[List]:
-    """:param V: 頂点数
-    """
-    return [[float('inf')]*V for _ in range(V)]
-
-
 # infで隣接行列を初期化
-matrix = init_matrix(V)
+matrix = [[float('inf')]*V for _ in range(V)]
 # 隣接行列を作成
 for i in range(10):
     c = map(int, input().split())
@@ -1074,6 +1149,10 @@ kk = 10*k + k%10  # 1の位を追加して左にシフト
 
 # ゲーム
 
+- ABC067 D - Fennec VS. Snuke(400)
+
+ゲームの言い換えを考えて、「hogeが多いプレイヤーの勝ち」とすると考えやすい。
+
 # フロー
 
 
@@ -1390,6 +1469,7 @@ for key, value in groupby(a, key=lambda x: x % 2):
 ### 順列　permutation
 
 - ABC054 C - One-stroke Path
+- ABC145 C – Average Length (300点)
 
 ```python
 from itertools import permutations
