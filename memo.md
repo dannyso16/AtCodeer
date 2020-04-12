@@ -18,6 +18,11 @@
 
 [GPATH x xGPATH](https://hello-world-494ec.firebaseapp.com/): グラフを描画してくれる！
 
+## 気になる
+
+- 最長共通部分列
+- BIT
+
 # 探索
 
 ## 深さ優先探索　再帰
@@ -333,6 +338,70 @@ from itertools import accumulate
 
 a = range(10)
 accum = list(accumulate(a))
+```
+
+
+
+## 最長増加部分列の長さ LIS
+
+> 数列 $A= a_0,a_1,…,a_{n−1}$ の最長増加部分列 の長さを求めてください。
+> 数列 $A$の増加部分列は$ 0≤i_0<i_1<…<i_k<n $かつ
+> 　$a_{i_0}<a_{i_1}<…<a_{i_k} $を満たす部分列 $a_{i_0}, a_{i_1}, …, a_{i_k} $です。最長増加部分列はその中で最も $*k*$　が大きいものです。
+
+- [AOJ](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DPL_1_D&lang=ja)
+- ABC006 D - トランプ挿入ソート: そのまま
+- ABC134 E - Sequence Decomposing(500): わりとそのまま
+
+二次元いれこ構造を一次元化
+
+- ABC038 D - プレゼント: (w,h)のいれこ構造をwを固定して求める。
+  - wを昇順ソートし、wが同じものはhで降順にしておく→LISに帰着
+- Chokudai speedrun L - 長方形 β(600): 上とほぼ同じ。w,hで大きい方をwにするだけ
+
+三次元（やってない）
+
+- [AOJ Longest Chain](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=1341&lang=en)
+
+長さのみは$O(NlogN)$ で求まる
+
+```python
+def LIS(seq: list) -> int:
+    """狭義単調増加
+    param: seq
+    return:LISの長さ（a_i < a_j）
+    """
+    from bisect import bisect_left
+
+    L = [seq[0]]
+    for i in range(len(seq)):
+        if seq[i] > L[-1]:
+            L.append(seq[i])
+        else:
+            idx = bisect_left(L, seq[i])
+            L[idx] = seq[i]
+    return len(L)
+```
+
+以下広義
+
+```python
+def LIS(seq: list) -> int:
+    """広義単調増加
+    param: seq
+    return:LISの長さ（a_i =< a_j）
+    """
+    from bisect import bisect_right
+    N = len(seq)
+    L = [seq[0]]
+    for i in range(1, N):
+        if seq[i] > L[-1]:
+            L.append(seq[i])
+        else:
+            idx = bisect_right(L, seq[i])
+            if idx == len(L):
+                L.append(None)  # avoid Out-of-Index-Error
+            L[idx] = seq[i]
+    return len(L)
 ```
 
 
@@ -1358,6 +1427,14 @@ a = [(1, 'One', '1'), (1, 'One', '01'),
      (2, 'Two', '2'), (2, 'Two', '02'),
      (3, 'Three', '3'), (3, 'Three', '03')]
 print(sorted(a, key=lambda x: (x[1], x[2], x[0])))
+
+
+"""keyを複数指定（片方は降順）
+"""
+a = [(1, 'One', '1'), (1, 'One', '01'),
+     (2, 'Two', '2'), (2, 'Two', '02'),
+     (3, 'Three', '3'), (3, 'Three', '03')]
+print(sorted(a, key=lambda x: (x[1], -x[2], -x[0])))
 ```
 
 ### deepcopy
