@@ -288,7 +288,35 @@ for key, cnt in c:
 
 
 
-## いもす法（累積和）
+
+
+## いもす法
+
+- 区間 $[l, r]$ に値 $x_i$ を足す
+
+上の操作を$O(1)$で保存、計算に$O(N)$でできる
+
+- ABC127 C - Prison(300): そのまま
+
+```python
+from itertools import accumulate
+
+N  # length of list
+Q  # Number of Query
+
+imos = [0]*N
+for _ in range(Q):
+    l, r = map(lambda x: int(x)-1, input().split())
+    imos[l] += 1
+    if r < N-1:
+        imos[r+1] -= 1
+imos = accumulate(imos)
+
+```
+
+
+
+### 累積和
 
 - ABC138 D - Ki(400) : 応用
 
@@ -307,7 +335,7 @@ a = range(10)
 accum = list(accumulate(a))
 ```
 
-いもす法
+
 
 # グラフ
 
