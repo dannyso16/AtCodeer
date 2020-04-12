@@ -1,0 +1,12 @@
+gems:
+  - jekyll-seo-tag
+  
+theme: jekyll-theme-cayman
+
+title: odanny 競プロめも
+
+description: odannyの競プロめもです。AtCoderとAOJ
+
+twitter:
+  username: dannyso16
+  card: summary
