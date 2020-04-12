@@ -21,7 +21,8 @@
 ## 気になる
 
 - 最長共通部分列
-- BIT
+
+  
 
 # 探索
 
@@ -784,6 +785,97 @@ class WeightedUnionFind:
 ```
 
 
+
+## Binary Indexed Tree (BIT)
+
+[参考](https://ikatakos.com/pot/programming_algorithm/data_structure/binary_indexed_tree)
+
+### Range Sum Query（区間の和）
+
+数列 $a$ に対して以下の操作が $O(log N)$  でできる
+
+- $a_i$ に $x$ を加算
+- $a_s$ から $a_t$ までの合計を得る
+
+例
+
+- [AOJ Range Sum Query](https://onlinejudge.u-aizu.ac.jp/problems/DSL_2_B)
+- 
+
+```python
+class BIT():
+    """Range Sum Query（区間の和）
+    """
+
+    def __init__(self, n: int):
+        self.n = n
+        self.bit = [0]*(n+1)  # 1-indexed
+
+    def add(self, i: int, x: int):
+        """i番目(1-idexed)にxを加算"""
+        while i <= self.n:
+            self.bit[i] += x
+            i += i & -i
+
+    def sum_1_to_i(self, i: int) -> int:
+        """1番目からi番目(含む)までの総和"""
+        s = 0
+        while i > 0:
+            s += self.bit[i]
+            i -= i & -i
+        return s
+
+    def sum_i_to_j(self, i: int, j: int):
+        """i番目からj番目(含む)までの総和"""
+        return self.sum_1_to_i(j) - self.sum_1_to_i(i-1)
+```
+
+
+
+### 区間の最大値・最小値
+
+Segment Treeほどの柔軟性は無いが、いくらかの制約された条件下で、区間最大値・最小値の管理にも使える（以下は最大値の例）
+
+- update(i,x): ai を x で更新する。
+- getmax(i): a1～ai の最大値を取得する。必ず1からの最大値であり、途中からは取得できない。
+
+例
+
+- ABC038 D - プレゼント: LISやけどな！
+
+```python
+class BIT():
+    """区間max, min
+    f に max or min を指定
+    """
+
+    def __init__(self, n: int, f: 'max or min'):
+        ok = (f == max or f == min)
+        assert ok, "f は max または min"
+
+        self.n = n
+        fill = 0 if f == max else 10**18
+        self.bit = [fill]*(n+1)  # 1-indexed
+        self.f = f
+
+    def range_f_1_to_i(self, i) -> int:
+        """区間[1, i]での最大値または最小値
+        """
+        ret = 0 if self.f == max else 10**18
+        while i:
+            ret = self.f(ret, self.bit[i])
+            i ^= i & -i
+        return ret
+
+    def update(self, i, x):
+        """ i 番目を x で更新
+        """
+        while i <= self.n:
+            self.bit[i] = self.f(self.bit[i], x)
+            i += i & -i
+        return
+
+```
 
 
 
