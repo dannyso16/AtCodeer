@@ -14,6 +14,8 @@
 
 米AtCoder tags 参考
 
+[test page](https://dannyso16.github.io/AtCoderMemo/?test.html)
+
 ## 便利なサイト
 
 [GPATH x xGPATH](https://hello-world-494ec.firebaseapp.com/): グラフを描画してくれる！
