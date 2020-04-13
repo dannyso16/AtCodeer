@@ -1267,6 +1267,47 @@ import sys
 sys.setrecursionlimit(1_000_000)
 ```
 
+## 最大公約数GCDと最小公倍数LCM
+
+二項演算
+
+```python
+from math import gcd
+print(gcd(2, 3))
+
+def lcm(a, b):
+    return a*b // gcd(a, b)
+```
+
+複数
+
+```python
+import math
+from functools import reduce
+
+
+def gcd(*numbers):
+    return reduce(math.gcd, numbers)
+
+
+def lcm_base(x, y):
+    return (x * y) // math.gcd(x, y)
+
+def lcm(*numbers):
+    return reduce(lcm_base, numbers, 1)
+
+
+print(gcd(27, 18, 9))
+# 9
+print(gcd(*[27, 18, 9, 3]))
+# 3
+
+print(lcm(27, 18, 9, 3))
+# 54
+print(lcm(*[27, 9, 3]))
+# 27
+```
+
 
 
 ## その他小さなtips
@@ -1333,6 +1374,26 @@ kk = 10*k + k%10  # 1の位を追加して左にシフト
 # 貪欲
 
 # テクニック
+
+## インデックスが煩雑なら変数に置く
+
+`atusa[i-1]`を繰り返し使うようなら、`a = atusa[i-1]`と置くと可読性が増す。あとアクセスを減らせるので早い。
+
+```python
+# 変数におくとき
+def f(n: int, x: int) -> int:
+    a = atusa[n-1]
+    p = pathi[n-1]
+    if x <= 2*a + 2:
+        return p + 1 + f(n-1, x - 2 - a)
+
+# 愚直に書いたとき
+def f(n: int, x: int) -> int:
+    if x <= 2*atusa[n-1] + 2:
+        return pathi[n-1] + 1 + f(n-1, x - (2+atusa[n-1]))
+```
+
+
 
 # 構築
 
