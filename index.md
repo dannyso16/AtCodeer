@@ -14,7 +14,7 @@
 
 米AtCoder tags 参考
 
-[test page](https://dannyso16.github.io/AtCoderMemo/?test.html)
+[test page](https://dannyso16.github.io/AtCoderMemo/test.html)
 
 ## 便利なサイト
 
