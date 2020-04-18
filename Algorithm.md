@@ -1444,6 +1444,40 @@ aN bN
 ab = [tuple(map(int, input().split())) for _ in range(N)]
 ```
 
+ファイルから読み込み
+
+```python
+# strip で改行文字を省く
+with open(path) as f:
+    l_strip = [s.strip() for s in f.readlines()]
+    print(l_strip)
+# ['line 1', 'line 2', 'line 3']
+```
+
+`UnicodeDecodeError: 'cp932' codec can't decode byte 0xef in position 0: illegal multibyte sequence`の対策
+
+```python
+import json
+
+f = open(r'C:\Users\UserName\Desktop\test.json','r',encoding="utf-8_sig")
+data = json.load(f)
+print(data)
+```
+
+デフォルトの場合、文字のコーディングはUTF-8になるのですが、Windows環境を使用しているとデフォルトがcp932でコーディングされることが原因。しかもutfのうち、utf-8-sigらしい。
+
+`python hoge.py 1 2 3`のように実行したい
+
+```python
+import sys
+
+args = sys.argv
+
+# 0 番目には実行ファイルのパスが入る
+print(args)
+print("第1引数：" + args[1])
+```
+
 
 
 ## 出力
