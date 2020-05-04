@@ -296,6 +296,46 @@ Unmerged paths:
 
 先にコンフリクトを自分で解消しておいてから、`add　→　commit`してもいいけど、CONFLICTの差分を残すためにも先にコミットしておいて、あとで修正コミットするのがいいのかな。
 
+## Gitignore
+
+### 書き方の基本
+
+```python
+# フォルダ内すべてを無視
+/__pycache__/
+
+# 特定のファイルを無視
+/maze.txt
+
+# 特定の拡張子
+*.txt
+
+```
+
+
+
+### .gitignoreにファイルを追加したのに無視されない
+
+ファイル削除してもいいとき
+
+```python
+git rm path/to/file
+.gitignore を編集
+git commit -m 'Good-bye file'
+```
+
+ファイルは残しておくとき
+
+```python
+git rm --cached path/to/file
+.gitignore を編集
+git commit -m "hoge"
+```
+
+
+
+[困ったらここをみよ](https://qiita.com/anqooqie/items/110957797b3d5280c44f)
+
 # Git の中身
 
 ## コミットハッシュ値
