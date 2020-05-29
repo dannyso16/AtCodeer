@@ -304,6 +304,44 @@ Unmerged paths:
 
 先にコンフリクトを自分で解消しておいてから、`add　→　commit`してもいいけど、CONFLICTの差分を残すためにも先にコミットしておいて、あとで修正コミットするのがいいのかな。
 
+### HEADがブランチから外れてしまった時
+
+[参考：gitのHEADがブランチから外れてしまう現象とその直し方2011](https://nishiohirokazu.hatenadiary.org/entry/20110513/1305290792)
+
+> さて、ここでうっかりブランチではなく特定のコミットオブジェクトをcheckoutしてしまったら何が起こる？
+> 
+> $ git checkout 62e5
+> Note: checking out '62e5'.
+> 
+> You are in 'detached HEAD' state. You can look around, make experimental
+> changes and commit them, and you can discard any commits you make in this
+> state without impacting any branches by performing another checkout.
+> 
+> If you want to create a new branch to retain commits you create, you may
+> do so (now or later) by using -b with the checkout command again. Example:
+> 
+>  git checkout -b new_branch_name
+> 
+> HEAD is now at 62e58df... add b
+
+誤って特定のコミットにcheckoutしてしまっていた．
+
+戻し方
+```
+ブランチを作る（ブランチはただの参照．コストはかからん）
+$ git branch tmp1
+
+masterに移動してマージ
+$ git checkout master
+Previous HEAD position was b17d3fd... add c
+Switched to branch 'master'
+
+$ git merge tmp1
+
+ブランチを消す
+$ git branch -d tmp1
+```
+
 ## Gitignore
 
 ### 書き方の基本
