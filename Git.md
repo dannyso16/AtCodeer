@@ -64,7 +64,7 @@ $ git config --global core.quotepath false
 git diff などは普通に日本語だったのでびびった（2019/11/17）
 
 
-## git log の内容の文字化け<E8><G2>..みたいな
+## git log の内容の文字化け`<E8><G2>..`みたいな
 
 > gitでなくgit logで表示に使ってるlessの文字コードが違うのではないか」ということと、lessはLESSCHARSETという環境変数で文字コードを指定できるということを知ったのでシステムで環境変数を設定
 
